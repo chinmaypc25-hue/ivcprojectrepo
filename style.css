@@ -1,0 +1,334 @@
+/* global reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: 'Poppins', sans-serif;
+    color: #fff;
+    overflow: hidden;
+}
+
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #4e3a8c, #6c5ce7);
+    z-index: -3;
+    overflow: hidden;
+}
+
+/* bubbles effect */
+.bubbles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+}
+.bubbles:after {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 2%, transparent 25%);
+    animation: floatBubbles 20s linear infinite;
+    opacity: 0.3;
+}
+@keyframes floatBubbles {
+    0% { transform: translate(0,0); }
+    100% { transform: translate(-50%, -50%); }
+}
+
+/* wave */
+.wave {
+    position: absolute;
+    bottom: 50%;
+    width: 200%;
+    height: 20%;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M0,60 C300,120 900,0 1200,60 L1200,120 L0,120 Z" fill="rgba(255,255,255,0.1)" /></svg>');
+    background-size: 50% 100px;
+    animation: waveAnim 8s linear infinite;
+    opacity: 0.4;
+}
+@keyframes waveAnim {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* loader */
+#loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+#loader.hidden {
+    display: none;
+}
+#loader:after {
+    content: '';
+    width: 50px;
+    height: 50px;
+    border: 6px solid #fff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* header */
+.top-bar {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 2;
+}
+.url-badge {
+    font-size: 0.9rem;
+    background: rgba(255,255,255,0.1);
+    padding: 5px 10px;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+.search-group {
+    display: flex;
+}
+.search-group input {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 20px 0 0 20px;
+    outline: none;
+    width: 180px;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    backdrop-filter: blur(10px);
+}
+.search-group input::placeholder {
+    color: #ddd;
+}
+.search-group button {
+    padding: 8px 12px;
+    border: none;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    border-radius: 0 20px 20px 0;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s;
+}
+.search-group button:hover {
+    transform: translateY(-5px);
+}
+.social-icons {
+    display: flex;
+    gap: 12px;
+}
+.social {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+    backdrop-filter: blur(10px);
+    color: #fff;
+    text-decoration: none;
+    transition: transform 0.3s;
+}
+.social:hover {
+    transform: translateY(-5px);
+}
+
+/* container and cards */
+.container {
+    position: relative;
+    padding: 120px 40px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+}
+.card {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+    padding: 20px;
+    color: #fff;
+    transition: transform 0.3s;
+}
+.card:hover {
+    transform: translateY(-10px);
+}
+.large-card {
+    width: 90%;
+    max-width: 600px;
+    text-align: center;
+}
+.large-card .city-name {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+.large-card .temp {
+    font-size: 4rem;
+    font-weight: 700;
+}
+.large-card .condition-icon img {
+    width: 120px;
+    height: auto;
+    margin: 10px 0;
+}
+.large-card .details-row {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+.large-card .detail {
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.small-cards {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.circle-card {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.circle-card .label {
+    font-size: 0.8rem;
+    margin-bottom: 5px;
+}
+.circle-card .value {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+.graph-card {
+    width: 200px;
+    height: 120px;
+}
+.graph-card .label {
+    font-size: 0.8rem;
+    margin-bottom: 5px;
+}
+.graph-card .value {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.forecast-card {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+.forecast-card::-webkit-scrollbar {
+    display: none;
+}
+.forecast-card {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.forecast-day {
+    min-width: 100px;
+    text-align: center;
+}
+.forecast-day img {
+    width: 60px;
+    height: auto;
+}
+
+.hourly-section {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    width: 100%;
+}
+.hourly-section::-webkit-scrollbar {
+    display: none;
+}
+.hourly-section {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.hourly-card {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 10px;
+    text-align: center;
+    min-width: 70px;
+    transition: transform 0.3s;
+}
+.hourly-card:hover {
+    transform: translateY(-8px);
+}
+.hourly-card img {
+    width: 30px;
+    height: auto;
+    margin: 5px 0;
+}
+
+/* utilities for circular gauge backgrounds */
+.gauge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: conic-gradient(#6c5ce7 0deg, #ffffff33 0deg);
+    z-index: -1;
+}
+
+/* responsive */
+@media (max-width: 600px) {
+    .container {
+        padding: 100px 20px 20px;
+    }
+    .large-card {
+        width: 100%;
+    }
+    .small-cards {
+        flex-direction: column;
+        align-items: center;
+    }
+    .forecast-card {
+        flex-wrap: wrap;
+    }
+    .search-group input {
+        width: 120px;
+    }
+}

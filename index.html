@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather Dashboard</title>
+    <!-- fonts & icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-somehash" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div class="background">
+        <div class="bubbles"></div>
+        <div class="wave"></div>
+    </div>
+    <!-- global loader -->
+    <div id="loader" class="hidden"></div>
+
+    <header class="top-bar">
+        <div class="url-badge">Weather_Dashboard</div>
+        <div class="search-group">
+            <input type="text" id="search-input" placeholder="Enter city or ZIP" />
+            <button id="search-button"><i class="fas fa-search"></i></button>
+        </div>
+        <div class="social-icons">
+            <a href="#" class="social"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="social"><i class="fab fa-instagram"></i></a>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="current-card" class="card large-card">
+            <div class="city-name">--</div>
+            <div class="temp">--°</div>
+            <div class="condition-icon"><img src="" alt="" /></div>
+            <div class="details-row">
+                <div class="detail"><i class="fas fa-arrow-up"></i> <span class="high">--</span></div>
+                <div class="detail"><i class="fas fa-arrow-down"></i> <span class="low">--</span></div>
+                <div class="detail"><i class="fas fa-tint"></i> <span class="precip">--</span></div>
+                <div class="detail"><i class="fas fa-wind"></i> <span class="wind">--</span></div>
+                <div class="detail"><i class="fas fa-water"></i> <span class="humidity">--</span></div>
+            </div>
+        </section>
+
+        <section class="small-cards">
+            <div class="card circle-card" id="wind-gauge">
+                <div class="label">Wind</div>
+                <div class="value">-- kph</div>
+            </div>
+            <div class="card circle-card" id="feelslike-gauge">
+                <div class="label">Feels</div>
+                <div class="value">--°</div>
+            </div>
+            <div class="card circle-card" id="humidity-gauge">
+                <div class="label">Humidity</div>
+                <div class="value">--%</div>
+            </div>
+            <div class="card graph-card" id="sunrise-graph">
+                <div class="label">Sunrise</div>
+                <div class="value">--</div>
+            </div>
+        </section>
+
+        <section id="forecast-5day" class="card forecast-card">
+            <!-- forecast day cards inserted via JS -->
+        </section>
+
+        <section id="hourly-row" class="hourly-section">
+            <!-- hourly pill cards inserted -->
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
