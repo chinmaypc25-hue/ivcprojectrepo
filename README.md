@@ -109,4 +109,5 @@ Feel free to use or adapt this dashboard for personal or commercial projects.
 Enjoy building with a dashboard that feels premium and looks like it came from a modern SaaS design system!
 
 ## Demo
-<img width="1919" height="909" alt="image" src="https://github.com/user-attachments/assets/47699a09-ed05-4fe8-af28-59cad6dcf3d4" />
+<img width="1919" height="944" alt="image" src="https://github.com/user-attachments/assets/f493b3c7-cb33-4d42-be3e-48d168a0b12f" />
+
