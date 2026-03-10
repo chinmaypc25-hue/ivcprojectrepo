@@ -7,6 +7,7 @@
     <!-- fonts & icons -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-somehash" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-sA+9/d77En6mn3duh0at3bJ50Q2jyRkq0Dg5L0kG7ow=" crossorigin="" />
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -14,6 +15,7 @@
         <div class="bubbles"></div>
         <div class="wave"></div>
     </div>
+    <div id="foreground-overlay" class="foreground-overlay"></div>
     <!-- global loader -->
     <div id="loader" class="hidden"></div>
 
@@ -22,6 +24,9 @@
         <div class="search-group">
             <input type="text" id="search-input" placeholder="Enter city or ZIP" />
             <button id="search-button"><i class="fas fa-search"></i></button>
+            <button id="location-button" title="Use my location"><i class="fas fa-location-dot"></i></button>
+            <button id="toggle-units" title="Toggle °C/°F"><span>°C</span></button>
+            <button id="favorites-button" title="Favorites"><i class="fas fa-star"></i></button>
         </div>
         <div class="social-icons">
             <a href="#" class="social"><i class="fab fa-twitter"></i></a>
@@ -32,13 +37,17 @@
 
     <main class="container">
         <section id="current-card" class="card large-card">
+            <h2 class="section-title">Current Weather</h2>
+            <div id="alert-banner" class="alert-banner hidden"></div>
             <div class="city-name">--</div>
             <div class="temp">--°</div>
             <div class="condition-icon"><img src="" alt="" /></div>
+            <div class="comfort-text">--</div>
             <div class="details-row">
                 <div class="detail"><i class="fas fa-arrow-up"></i> <span class="high">--</span></div>
                 <div class="detail"><i class="fas fa-arrow-down"></i> <span class="low">--</span></div>
                 <div class="detail"><i class="fas fa-tint"></i> <span class="precip">--</span></div>
+                <div class="detail"><i class="fas fa-cloud-rain"></i> <span class="rain-chance">--</span></div>
                 <div class="detail"><i class="fas fa-wind"></i> <span class="wind">--</span></div>
                 <div class="detail"><i class="fas fa-water"></i> <span class="humidity">--</span></div>
             </div>
@@ -58,20 +67,25 @@
                 <div class="value">--%</div>
             </div>
             <div class="card graph-card" id="sunrise-graph">
-                <div class="label">Sunrise</div>
+                <div class="label">Sunrise / Sunset</div>
                 <div class="value">--</div>
+                <div class="sun-progress"><div class="sun-fill"></div></div>
+            </div>
+            <div class="card graph-card" id="aqi-card">
+                <div class="label">Air Quality</div>
+                <div class="value">--</div>
+                <div class="aqi-desc">--</div>
             </div>
         </section>
 
         <section id="forecast-5day" class="card forecast-card">
+            <h2 class="section-title">7-Day Forecast</h2>
             <!-- forecast day cards inserted via JS -->
         </section>
 
-        <section id="hourly-row" class="hourly-section">
-            <!-- hourly pill cards inserted -->
-        </section>
     </main>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-o9N1j7kEtYV4gkV3f4ZTqnS3wfe7bnE1xiInS8B4QkM=" crossorigin=""></script>
     <script src="script.js"></script>
 </body>
 </html>
