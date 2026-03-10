@@ -13,7 +13,6 @@ Inspired by high‑end dashboard designs, WeatherHub uses a glassmorphism theme,
 - **7‑day forecast** in a horizontal scroll‑able card row (today highlighted)
 - **Unit toggle** (°C / °F)
 - **Favorites**: save and recall locations using localStorage
-- **Map view** with pin marker (Leaflet + OpenStreetMap)
 - **Air quality index** (AQI) and descriptor when available
 - **Weather alerts** banner (severe weather notifications)
 - Animated background transitions + **weather‑specific foreground effects** (rain, snow, clouds, lightning)
