@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rain Forecast</title>
+    <link rel="icon" href="assets/icons/icon.png" />
+    <!-- fonts & icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-somehash" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-sA+9/d77En6mn3duh0at3bJ50Q2jyRkq0Dg5L0kG7ow=" crossorigin="" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div class="background">
+        <div class="bubbles"></div>
+        <div class="wave"></div>
+    </div>
+    <div id="foreground-overlay" class="foreground-overlay"></div>
+    <!-- global loader -->
+    <div id="loader" class="hidden"></div>
+
+    <header class="top-bar">
+        <div class="url-badge">
+            <img src="assets/icons/rain.png" alt="Rain logo" class="logo-icon" />
+            Rain Forecast
+        </div>
+        <div class="search-group">
+            <input type="text" id="search-input" placeholder="Enter city or ZIP" />
+            <button id="search-button"><i class="fas fa-search"></i></button>
+            <button id="location-button" title="Use my location"><i class="fas fa-location-dot"></i></button>
+            <button id="toggle-units" title="Toggle °C/°F"><span>°C</span></button>
+            <a href="index.html" class="simple-link" title="Back to dashboard"><i class="fas fa-home"></i></a>
+        </div>
+        <div class="social-icons">
+            <a href="#" class="social"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="social"><i class="fab fa-instagram"></i></a>
+        </div>
+    </header>
+
+    <main class="container" id="rain-dashboard">
+        <section class="card rain-status">
+            <h2 class="section-title">Live Rain Status</h2>
+            <div id="rain-location" class="rain-location">Loading location...</div>
+            <div id="rain-updated" class="rain-updated">Updated: --</div>
+            <div id="rain-status-text" class="rain-status-text">Loading...</div>
+            <div id="umbrella-message" class="umbrella-message">--</div>
+        </section>
+
+        <section class="card rain-alert">
+            <h2 class="section-title">Rain Alerts</h2>
+            <div id="rain-alert-text" class="rain-alert-text">No alerts at this time.</div>
+            <div id="rain-start" class="rain-start">Rain starts: --</div>
+            <div id="rain-safe" class="rain-safe">Safe hours: --</div>
+        </section>
+
+        <section class="card rain-hourly">
+            <h2 class="section-title">Hourly Rain Probability</h2>
+            <div class="rain-hour-header">
+                <div>Time</div>
+                <div>%</div>
+                <div>Intensity</div>
+            </div>
+            <div id="rain-hourly-list" class="rain-hourly-list"></div>
+        </section>
+
+        <section class="card rain-daily">
+            <h2 class="section-title">Next 5 Days Rain Summary</h2>
+            <div id="rain-daily-summary" class="rain-daily-summary"></div>
+        </section>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-o9N1j7kEtYV4gkV3f4ZTqnS3wfe7bnE1xiInS8B4QkM=" crossorigin=""></script>
+    <script src="script.js"></script>
+</body>
+</html>

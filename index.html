@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Weather Dashboard</title>
+    <link rel="icon" href="assets/icons/icon.png" />
     <!-- fonts & icons -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-somehash" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -20,18 +21,27 @@
     <div id="loader" class="hidden"></div>
 
     <header class="top-bar">
-        <div class="url-badge">Weather_Dashboard</div>
+        <div class="url-badge">
+            <img src="assets/icons/sun.png" alt="Weather logo" class="logo-icon" />
+            Weather_Dashboard
+        </div>
         <div class="search-group">
             <input type="text" id="search-input" placeholder="Enter city or ZIP" />
             <button id="search-button"><i class="fas fa-search"></i></button>
             <button id="location-button" title="Use my location"><i class="fas fa-location-dot"></i></button>
             <button id="toggle-units" title="Toggle °C/°F"><span>°C</span></button>
-            <button id="favorites-button" title="Favorites"><i class="fas fa-star"></i></button>
+            <button id="rain-forecast-button" title="Rain Forecast">Rain Forecast</button>
+            <a href="profile.html" class="simple-link" id="user-link" title="Profile"><i class="fas fa-user"></i></a>
         </div>
         <div class="social-icons">
             <a href="#" class="social"><i class="fab fa-twitter"></i></a>
             <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
             <a href="#" class="social"><i class="fab fa-instagram"></i></a>
+        </div>
+        <div id="user-badge" class="user-badge hidden">
+            <img id="user-avatar" src="" alt="Profile" class="user-avatar" />
+            <span id="user-name"></span>
+            <button id="logout-button" class="logout-button" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </header>
 
@@ -55,6 +65,7 @@
 
         <section class="small-cards">
             <div class="card circle-card" id="wind-gauge">
+                <img src="assets/icons/wind.png" alt="Wind" class="card-icon" />
                 <div class="label">Wind</div>
                 <div class="value">-- kph</div>
             </div>
@@ -81,6 +92,21 @@
         <section id="forecast-5day" class="card forecast-card">
             <h2 class="section-title">7-Day Forecast</h2>
             <!-- forecast day cards inserted via JS -->
+        </section>
+
+        <section class="card icon-legend">
+            <h2 class="section-title">Weather Icons</h2>
+            <div class="icon-row">
+                <div class="icon-item"><img src="assets/icons/sun.png" alt="Clear" /><span>Clear</span></div>
+                <div class="icon-item"><img src="assets/icons/cloud.png" alt="Clouds" /><span>Cloudy</span></div>
+                <div class="icon-item"><img src="assets/icons/rain.png" alt="Rain" /><span>Rain</span></div>
+                <div class="icon-item"><img src="assets/icons/thunderstorm.png" alt="Storm" /><span>Storm</span></div>
+                <div class="icon-item"><img src="assets/icons/snow.png" alt="Snow" /><span>Snow</span></div>
+                <div class="icon-item"><img src="assets/icons/mist.png" alt="Mist" /><span>Mist</span></div>
+                <div class="icon-item"><img src="assets/icons/haze.png" alt="Haze" /><span>Haze</span></div>
+                <div class="icon-item"><img src="assets/icons/wind.png" alt="Wind" /><span>Wind</span></div>
+                <div class="icon-item"><img src="assets/icons/icon.png" alt="Default" /><span>Default</span></div>
+            </div>
         </section>
 
     </main>

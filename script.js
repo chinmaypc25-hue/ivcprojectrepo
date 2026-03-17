@@ -3,7 +3,6 @@ const BASE_URL = "https://api.weatherapi.com/v1";
 
 const state = {
     units: localStorage.getItem('weatherUnits') || 'C',
-    favorites: JSON.parse(localStorage.getItem('weatherFavorites') || '[]'),
     lastData: null,
     map: null,
     mapMarker: null,
@@ -14,6 +13,54 @@ function showLoader() {
 }
 function hideLoader() {
     document.getElementById('loader').classList.add('hidden');
+}
+
+// ----- user / login helpers -----
+const PROFILE_STORAGE_KEY = 'weatherUserProfile';
+
+function getStoredUser() {
+    try {
+        return JSON.parse(localStorage.getItem(PROFILE_STORAGE_KEY) || 'null');
+    } catch {
+        return null;
+    }
+}
+
+function setStoredUser(user) {
+    localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(user));
+}
+
+function clearStoredUser() {
+    localStorage.removeItem(PROFILE_STORAGE_KEY);
+}
+
+function updateUserBadge() {
+    const user = getStoredUser();
+    const badge = document.getElementById('user-badge');
+    const profileLink = document.getElementById('user-link');
+    if (!badge) return;
+
+    if (user?.username && user?.profile) {
+        const nameEl = document.getElementById('user-name');
+        const avatar = document.getElementById('user-avatar');
+        if (nameEl) nameEl.textContent = user.username;
+        if (avatar) avatar.src = user.profile;
+        badge.classList.remove('hidden');
+        if (profileLink) profileLink.classList.add('hidden');
+    } else {
+        badge.classList.add('hidden');
+        if (profileLink) profileLink.classList.remove('hidden');
+    }
+}
+
+function setupLogout() {
+    const btn = document.getElementById('logout-button');
+    if (!btn) return;
+
+    btn.addEventListener('click', () => {
+        clearStoredUser();
+        window.location.reload();
+    });
 }
 
 async function fetchWeather(query) {
@@ -110,6 +157,18 @@ function setBackground(conditionText) {
     }
 }
 
+function getWeatherIcon(conditionText) {
+    const lower = (conditionText || '').toLowerCase();
+    if (lower.includes('thunder') || lower.includes('storm')) return 'assets/icons/thunderstorm.png';
+    if (lower.includes('snow') || lower.includes('sleet') || lower.includes('blizzard')) return 'assets/icons/snow.png';
+    if (lower.includes('rain') || lower.includes('drizzle') || lower.includes('shower')) return 'assets/icons/rain.png';
+    if (lower.includes('mist') || lower.includes('fog')) return 'assets/icons/mist.png';
+    if (lower.includes('haze')) return 'assets/icons/haze.png';
+    if (lower.includes('cloud')) return 'assets/icons/cloud.png';
+    if (lower.includes('clear') || lower.includes('sunny')) return 'assets/icons/sun.png';
+    return 'assets/icons/icon.png';
+}
+
 function randomBetween(min, max) {
     return Math.random() * (max - min) + min;
 }
@@ -197,6 +256,176 @@ function parseTime(timeStr, dateStr) {
     return new Date(`${dateStr} ${timeStr}`);
 }
 
+function getRainIntensity(precipMm) {
+    if (precipMm >= 7) return { title: 'Heavy', emoji: '🌧️' };
+    if (precipMm >= 2) return { title: 'Moderate', emoji: '🌦️' };
+    return { title: 'Light', emoji: '🌦' };
+}
+
+function formatHourLabel(hourStr, dateStr) {
+    const date = parseTime(hourStr, dateStr);
+    return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+}
+
+function getRainStatusText(current) {
+    const intensity = getRainIntensity(current.precip_mm ?? 0);
+    const isRaining = current.precip_mm > 0.2 || /rain|shower|drizzle/i.test(current.condition.text);
+    if (isRaining) {
+        return `${intensity.emoji} ${intensity.title} — ${current.precip_mm.toFixed(1)} mm`; 
+    }
+    return '☀ No rain currently';
+}
+
+function getUmbrellaMessage(forecastDay) {
+    const rainChance = forecastDay.day.daily_chance_of_rain ?? 0;
+    if (rainChance >= 70) return 'Carry an umbrella today ☔';
+    if (rainChance >= 40) return 'There is a chance of rain — keep an umbrella handy';
+    return 'Low chance of rain, safe to travel 🚶';
+}
+
+function buildRainHourlyRows(hours, dateStr) {
+    return hours
+        .slice(0, 24)
+        .map((hour) => {
+            const chance = typeof hour.chance_of_rain === 'number'
+                ? hour.chance_of_rain
+                : hour.will_it_rain ? 80 : 0;
+            const intensity = getRainIntensity(hour.precip_mm ?? 0);
+            const barWidth = Math.min(100, Math.max(0, chance));
+            return `
+                <div class="rain-hour-row">
+                    <div class="rain-hour-time">${formatHourLabel(hour.time.split(' ')[1], dateStr)}</div>
+                    <div class="rain-hour-percent">
+                        <div class="rain-bar" style="width: ${barWidth}%;"></div>
+                        <span>${chance}%</span>
+                    </div>
+                    <div class="rain-hour-intensity">${intensity.emoji} ${intensity.title}</div>
+                </div>
+            `;
+        })
+        .join('');
+}
+
+function findNextDryWindow(hours, dateStr) {
+    const threshold = 20;
+    const normalized = hours.slice(0, 24).map((hour) => {
+        const chance = typeof hour.chance_of_rain === 'number'
+            ? hour.chance_of_rain
+            : hour.will_it_rain ? 80 : 0;
+        return {
+            time: formatHourLabel(hour.time.split(' ')[1], dateStr),
+            dry: chance <= threshold,
+        };
+    });
+
+    let start = null;
+    let end = null;
+    for (let i = 0; i < normalized.length; i++) {
+        if (!start && normalized[i].dry) {
+            start = normalized[i].time;
+        }
+        if (start && !normalized[i].dry) {
+            end = normalized[i - 1].time;
+            break;
+        }
+        if (i === normalized.length - 1 && start) {
+            end = normalized[i].time;
+        }
+    }
+
+    if (!start) return null;
+    return start === end ? `${start}` : `${start} – ${end}`;
+}
+
+function updateRainDashboard(data) {
+    const current = data.current;
+    const day = data.forecast?.forecastday?.[0];
+    if (!day) return;
+
+    const statusEl = document.getElementById('rain-status-text');
+    const umbrellaEl = document.getElementById('umbrella-message');
+    const alertEl = document.getElementById('rain-alert-text');
+    const hourlyEl = document.getElementById('rain-hourly-list');
+    const dailyEl = document.getElementById('rain-daily-summary');
+
+    if (statusEl) statusEl.textContent = getRainStatusText(current);
+    if (umbrellaEl) umbrellaEl.textContent = getUmbrellaMessage(day);
+
+    const locationEl = document.getElementById('rain-location');
+    if (locationEl) {
+        const locationName = `${data.location.name}${data.location.region ? ', ' + data.location.region : ''}, ${data.location.country}`;
+        locationEl.textContent = locationName;
+    }
+
+    const updatedEl = document.getElementById('rain-updated');
+    if (updatedEl) {
+        updatedEl.textContent = `Updated: ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })}`;
+    }
+
+    const hours = day.hour || [];
+
+    if (hourlyEl) {
+        hourlyEl.innerHTML = buildRainHourlyRows(hours, day.date);
+    }
+
+    if (dailyEl) {
+        const days = data.forecast.forecastday.slice(0, 5);
+        dailyEl.innerHTML = days
+            .map((d) => {
+                const chance = d.day.daily_chance_of_rain ?? 0;
+                const intensity = getRainIntensity(d.day.totalprecip_mm ?? 0);
+                return `
+                    <div class="rain-day-card">
+                        <div class="rain-day-name">${new Date(d.date).toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                        <div class="rain-day-percent">${chance}%</div>
+                        <div class="rain-day-intensity">${intensity.emoji} ${intensity.title}</div>
+                    </div>
+                `;
+            })
+            .join('');
+    }
+
+    // Rain start / safe hours
+    const firstRainHour = hours.find((h) => (h.chance_of_rain ?? 0) > 70);
+    const safeWindow = findNextDryWindow(hours, day.date);
+
+    const rainStartEl = document.getElementById('rain-start');
+    if (rainStartEl) {
+        if (firstRainHour) {
+            const time = formatHourLabel(firstRainHour.time.split(' ')[1], day.date);
+            rainStartEl.textContent = `Rain starts: ${time}`;
+        } else {
+            rainStartEl.textContent = 'Rain starts: No rain expected today';
+        }
+    }
+
+    const safeEl = document.getElementById('rain-safe');
+    if (safeEl) {
+        if (safeWindow) {
+            safeEl.textContent = `Safe hours: ${safeWindow}`;
+        } else {
+            safeEl.textContent = 'Safe hours: No clear window today';
+        }
+    }
+
+    // Heavy rain alerts
+    if (alertEl) {
+        const heavy = hours.find((h) => (h.chance_of_rain ?? 0) > 80);
+        if (heavy) {
+            const time = formatHourLabel(heavy.time.split(' ')[1], day.date);
+            alertEl.textContent = `⚠ Heavy rain expected at ${time} (${heavy.chance_of_rain}% chance)`;
+        } else {
+            alertEl.textContent = 'No heavy rain expected in the next 24 hours.';
+        }
+    }
+
+    // rain animation when chance is high
+    const maxChance = Math.max(...(hours.map((h) => (h.chance_of_rain ?? 0))));
+    if (maxChance >= 60) {
+        setBackground('rain');
+    }
+}
+
 function updateSunProgress(forecastDay) {
     const sunrise = parseTime(forecastDay.astro.sunrise, forecastDay.date);
     const sunset = parseTime(forecastDay.astro.sunset, forecastDay.date);
@@ -225,48 +454,18 @@ function updateMap(lat, lon, label) {
 }
 
 
-function loadFavorites() {
-    const stored = JSON.parse(localStorage.getItem('weatherFavorites') || '[]');
-    state.favorites = Array.isArray(stored) ? stored : [];
-}
-
-function saveFavorites() {
-    localStorage.setItem('weatherFavorites', JSON.stringify(state.favorites));
-}
-
-function promptFavorites() {
-    loadFavorites();
-    const choice = prompt(
-        `Favorites:\n${state.favorites.map((f, i) => `${i + 1}. ${f}`).join('\n')}\n\nType a number to load, or enter a new city to add:`
-    );
-    if (!choice) return;
-    const index = parseInt(choice, 10);
-    if (!isNaN(index) && index >= 1 && index <= state.favorites.length) {
-        document.getElementById('search-input').value = state.favorites[index - 1];
-        searchCity();
-        return;
-    }
-    const trimmed = choice.trim();
-    if (trimmed) {
-        if (!state.favorites.includes(trimmed)) {
-            state.favorites.push(trimmed);
-            saveFavorites();
-        }
-        document.getElementById('search-input').value = trimmed;
-        searchCity();
-    }
-}
-
 function updateCurrentWeather(data) {
     if (!data) return;
     state.lastData = data;
+
+    if (!document.querySelector(".city-name")) return;
 
     const current = data.current;
     const location = data.location;
 
     document.querySelector(".city-name").textContent = `${location.name}, ${location.country}`;
     document.querySelector(".temp").textContent = formatTemp(current.temp_c, current.temp_f);
-    const iconUrl = `https:${current.condition.icon}`;
+    const iconUrl = getWeatherIcon(current.condition.text);
     document.querySelector(".condition-icon img").src = iconUrl;
     document.querySelector(".condition-icon img").alt = current.condition.text;
     document.querySelector(".high").textContent = formatTemp(data.forecast.forecastday[0].day.maxtemp_c, data.forecast.forecastday[0].day.maxtemp_f);
@@ -317,6 +516,11 @@ function updateCurrentWeather(data) {
 
     // summary
     updateSummary(data);
+
+    // rain page updates (if present)
+    if (document.getElementById('rain-dashboard')) {
+        updateRainDashboard(data);
+    }
 }
 
 function setGauge(id, degrees, text) {
@@ -333,11 +537,13 @@ function setGauge(id, degrees, text) {
 
 function updateForecast(data) {
     if (!data) return;
+    const container = document.getElementById("forecast-5day");
+    if (!container) return;
+
     const days = data.forecast?.forecastday;
     if (!Array.isArray(days) || !days.length) return;
 
     const today = new Date().toISOString().slice(0, 10);
-    const container = document.getElementById("forecast-5day");
     container.innerHTML = "";
 
     days.forEach(day => {
@@ -346,7 +552,7 @@ function updateForecast(data) {
         card.className = `forecast-day card${isToday ? ' current' : ''}`;
         card.innerHTML = `
             <div class="date">${new Date(day.date).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</div>
-            <img src="https:${day.day.condition.icon}" alt="${day.day.condition.text}" />
+            <img src="${getWeatherIcon(day.day.condition.text)}" alt="${day.day.condition.text}" />
             <div class="temp">${formatTemp(day.day.maxtemp_c, day.day.maxtemp_f)} / ${formatTemp(day.day.mintemp_c, day.day.mintemp_f)}</div>
             <div class="desc">${day.day.condition.text}</div>
             <div class="rain-chance">${day.day.daily_chance_of_rain ?? 0}% rain</div>
@@ -416,6 +622,14 @@ function displayWeather(data) {
         if (summaryEl) summaryEl.textContent = 'Unable to compute week summary.';
     }
 
+    // Rain page: update rain-specific panels if present
+    if (document.getElementById('rain-dashboard')) {
+        try {
+            updateRainDashboard(data);
+        } catch (err) {
+            console.error('updateRainDashboard failed', err);
+        }
+    }
 }
 
 async function searchCity() {
@@ -452,17 +666,43 @@ async function getLocationWeather() {
 }
 
 window.addEventListener('load', () => {
-    loadFavorites();
     setUnits(state.units);
-    getLocationWeather();
+    updateUserBadge();
+    setupLogout();
+
+    if (document.getElementById('current-card')) {
+        getLocationWeather();
+    }
+
+    if (document.getElementById('rain-dashboard')) {
+        // Use geolocation for rain page as well
+        getLocationWeather();
+    }
 });
 
-document.getElementById('search-button').addEventListener('click', searchCity);
-document.getElementById('location-button').addEventListener('click', getLocationWeather);
-document.getElementById('toggle-units').addEventListener('click', () => {
-    setUnits(state.units === 'C' ? 'F' : 'C');
-});
-document.getElementById('favorites-button').addEventListener('click', promptFavorites);
-document.getElementById('search-input').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') searchCity();
-});
+const searchBtn = document.getElementById('search-button');
+if (searchBtn) searchBtn.addEventListener('click', searchCity);
+
+const locationBtn = document.getElementById('location-button');
+if (locationBtn) locationBtn.addEventListener('click', getLocationWeather);
+
+const toggleUnitsBtn = document.getElementById('toggle-units');
+if (toggleUnitsBtn) {
+    toggleUnitsBtn.addEventListener('click', () => {
+        setUnits(state.units === 'C' ? 'F' : 'C');
+    });
+}
+
+const rainForecastBtn = document.getElementById('rain-forecast-button');
+if (rainForecastBtn) {
+    rainForecastBtn.addEventListener('click', () => {
+        window.location.href = 'rain.html';
+    });
+}
+
+const searchInput = document.getElementById('search-input');
+if (searchInput) {
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') searchCity();
+    });
+}
