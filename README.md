@@ -5,14 +5,15 @@ Inspired by high‑end dashboard designs, WeatherHub uses a glassmorphism theme,
 
 ---
 
-## 🚀 Features (Updated March 10, 2026)
+## 🚀 Features (Updated March 17, 2026)
 
 - **Live weather data** fetched from [WeatherAPI.com](https://www.weatherapi.com/)
 - Search by city or ZIP code + **auto‑detect location** via GPS or IP
 - **Current weather card** with temperature, icon, feels‑like, wind, humidity, and more
 - **7‑day forecast** in a horizontal scroll‑able card row (today highlighted)
 - **Unit toggle** (°C / °F)
-- **Favorites**: save and recall locations using localStorage
+- **Profile system**: log in with a username + avatar, persisted in localStorage
+- **Rain Forecast page**: detailed rain probability, intensity, safe windows, and multi‑day rain summary
 - **Air quality index** (AQI) and descriptor when available
 - **Weather alerts** banner (severe weather notifications)
 - Animated background transitions + **weather‑specific foreground effects** (rain, snow, clouds, lightning)
